@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mural de Comentarios</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    .post {
+      background: white;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🧱 Mural de Comentarios</h1>
+
+<form id="form">
+  <input type="text" id="name" placeholder="Tu nombre" required><br><br>
+  <textarea id="message" placeholder="Escribe tu mensaje" required></textarea><br><br>
+  <input type="file" id="photo"><br><br>
+  <button type="submit">Publicar</button>
+</form>
+
+<div id="posts"></div>
+
+</body>
+</html>
