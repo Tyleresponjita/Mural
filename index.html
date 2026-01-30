@@ -52,8 +52,49 @@
 
   const db = firebase.firestore();
   const storage = firebase.storage();
+  const form = document.getElementById("form");
+const postsDiv = document.getElementById("posts");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("name").value;
+  const message = document.getElementById("message").value;
+
+  await db.collection("posts").add({
+    name: name,
+    message: message,
+    date: Date.now()
+  });
+
+  form.reset();
+  loadPosts();
+});
+
+async function loadPosts() {
+  postsDiv.innerHTML = "";
+
+  const snapshot = await db
+    .collection("posts")
+    .orderBy("date", "desc")
+    .get();
+
+  snapshot.forEach(doc => {
+    const data = doc.data();
+    postsDiv.innerHTML += `
+      <div class="post">
+        <strong>${data.name}</strong>
+        <p>${data.message}</p>
+      </div>
+    `;
+  });
+}
+
+loadPosts();
+
 </script>
 
 </body>
 </html>
+
 
