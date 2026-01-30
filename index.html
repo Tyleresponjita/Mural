@@ -89,7 +89,7 @@ form button:hover {
 </style>
 </head>
 <body>
-<h1> Mural de Mensajes</h1>
+<h1>Mural de Comentarios</h1>
 
 <form id="form">
     <input type="text" id="name" placeholder="Tu nombre" required>
@@ -106,15 +106,16 @@ form button:hover {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <script>
-// CONFIGURACIÓN FIREBASE (usa los datos de tu proyecto)
+// 🔹 CONFIGURACIÓN FIREBASE 🔹
+// Reemplaza estos valores con los de tu proyecto web en Firebase
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "TU_MESSAGING_SENDER_ID",
-  appId: "TU_APP_ID",
-  measurementId: "TU_MEASUREMENT_ID"
+  apiKey: "AIzaSyCImZjAnJTabmS3cbQWnxci6Wlmir9Tlvs",
+  authDomain: "mural-de-mensajes.firebaseapp.com",
+  projectId: "mural-de-mensajes",
+  storageBucket: "mural-de-mensajes.firebasestorage.app",
+  messagingSenderId: "41328202304",
+  appId: "1:41328202304:web:6182555c612914e4d1c5a5",
+  measurementId: "G-QGH48V0L8Y"
 };
 firebase.initializeApp(firebaseConfig);
 
@@ -127,6 +128,7 @@ const postsDiv = document.getElementById("posts");
 // Colores de post-it
 const postColors = ["#FFF9C4","#FFECB3","#FFE0B2","#FFCCBC","#D1C4E9","#B3E5FC","#C8E6C9","#FFCDD2"];
 
+// Subir comentario
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const name = document.getElementById("name").value.trim();
@@ -152,43 +154,41 @@ form.addEventListener("submit", async (e) => {
         });
 
         form.reset();
-        loadPosts();
     } catch (err) {
         console.error("Error al guardar el post:", err);
         alert("No se pudo guardar el comentario. Revisa la consola.");
     }
 });
 
-async function loadPosts() {
-    postsDiv.innerHTML = "";
-    const snapshot = await db.collection("posts").orderBy("date", "desc").get();
-    snapshot.forEach((doc) => {
-        const data = doc.data();
-        // Color aleatorio para post-it
-        const color = postColors[Math.floor(Math.random() * postColors.length)];
-        const rotateDeg = (Math.random() * 4 - 2).toFixed(2); // rotación ±2°
+// 🔹 Tiempo real: carga los posts automáticamente
+db.collection("posts")
+  .orderBy("date", "desc")
+  .onSnapshot(snapshot => {
+      postsDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+          const data = doc.data();
+          const color = postColors[Math.floor(Math.random() * postColors.length)];
+          const rotateDeg = (Math.random() * 4 - 2).toFixed(2);
 
-        const postDiv = document.createElement("div");
-        postDiv.classList.add("post");
-        postDiv.style.backgroundColor = color;
-        postDiv.style.transform = `rotate(${rotateDeg}deg)`;
-        postDiv.innerHTML = `
-            <strong>${data.name}</strong>
-            <p>${data.message}</p>
-            ${data.photo ? `<img src="${data.photo}">` : ""}
-        `;
-        postsDiv.appendChild(postDiv);
+          const postDiv = document.createElement("div");
+          postDiv.classList.add("post");
+          postDiv.style.backgroundColor = color;
+          postDiv.style.transform = `rotate(${rotateDeg}deg)`;
+          postDiv.innerHTML = `
+              <strong>${data.name}</strong>
+              <p>${data.message}</p>
+              ${data.photo ? `<img src="${data.photo}">` : ""}
+          `;
+          postsDiv.appendChild(postDiv);
 
-        // Animación fade-in
-        setTimeout(() => postDiv.classList.add("visible"), 50);
-    });
-}
-
-// Cargar posts al iniciar
-loadPosts();
+          setTimeout(() => postDiv.classList.add("visible"), 50);
+      });
+  });
 </script>
 </body>
 </html>
+
+
 
 
 
