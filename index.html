@@ -11,7 +11,7 @@
 <style>
 body {
     font-family: 'Montserrat', sans-serif;
-    background: #ffffff; /* fondo blanco */
+    background: #ffffff;
     padding: 20px;
 }
 
@@ -66,17 +66,19 @@ form button:hover {
 }
 
 .post {
-    background: #fff; /* se reemplazará dinámicamente */
+    background: #fff;
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     word-wrap: break-word;
     font-family: 'Montserrat', sans-serif;
-    transition: transform 0.2s;
+    transform: rotate(0deg);
+    transition: transform 0.2s, opacity 0.3s;
+    opacity: 0;
 }
 
-.post:hover {
-    transform: translateY(-5px);
+.post.visible {
+    opacity: 1;
 }
 
 .post img {
@@ -87,7 +89,7 @@ form button:hover {
 </style>
 </head>
 <body>
-<h1>🧱 Mural de Mensajes</h1>
+<h1> Mural de Mensajes</h1>
 
 <form id="form">
     <input type="text" id="name" placeholder="Tu nombre" required>
@@ -104,15 +106,15 @@ form button:hover {
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <script>
-// Configura tu Firebase
+// CONFIGURACIÓN FIREBASE (usa los datos de tu proyecto)
 const firebaseConfig = {
-  apiKey: "AIzaSyCImZjAnJTabmS3cbQWnxci6Wlmir9Tlvs",
-  authDomain: "mural-de-mensajes.firebaseapp.com",
-  projectId: "mural-de-mensajes",
-  storageBucket: "mural-de-mensajes.appspot.com",
-  messagingSenderId: "41328202304",
-  appId: "1:41328202304:web:6182555c612914e4d1c5a5",
-  measurementId: "G-QGH48V0L8Y"
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_PROYECTO.firebaseapp.com",
+  projectId: "TU_PROYECTO",
+  storageBucket: "TU_PROYECTO.appspot.com",
+  messagingSenderId: "TU_MESSAGING_SENDER_ID",
+  appId: "TU_APP_ID",
+  measurementId: "TU_MEASUREMENT_ID"
 };
 firebase.initializeApp(firebaseConfig);
 
@@ -122,14 +124,16 @@ const storage = firebase.storage();
 const form = document.getElementById("form");
 const postsDiv = document.getElementById("posts");
 
-// Array de colores tipo post-it
+// Colores de post-it
 const postColors = ["#FFF9C4","#FFECB3","#FFE0B2","#FFCCBC","#D1C4E9","#B3E5FC","#C8E6C9","#FFCDD2"];
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const name = document.getElementById("name").value;
-    const message = document.getElementById("message").value;
+    const name = document.getElementById("name").value.trim();
+    const message = document.getElementById("message").value.trim();
     const photoFile = document.getElementById("photo").files[0];
+
+    if (!name || !message) return;
 
     let photoURL = "";
 
@@ -160,24 +164,33 @@ async function loadPosts() {
     const snapshot = await db.collection("posts").orderBy("date", "desc").get();
     snapshot.forEach((doc) => {
         const data = doc.data();
-        // Elegir un color aleatorio para cada post
+        // Color aleatorio para post-it
         const color = postColors[Math.floor(Math.random() * postColors.length)];
+        const rotateDeg = (Math.random() * 4 - 2).toFixed(2); // rotación ±2°
 
-        postsDiv.innerHTML += `
-            <div class="post" style="background-color: ${color}">
-                <strong>${data.name}</strong>
-                <p>${data.message}</p>
-                ${data.photo ? `<img src="${data.photo}">` : ""}
-            </div>
+        const postDiv = document.createElement("div");
+        postDiv.classList.add("post");
+        postDiv.style.backgroundColor = color;
+        postDiv.style.transform = `rotate(${rotateDeg}deg)`;
+        postDiv.innerHTML = `
+            <strong>${data.name}</strong>
+            <p>${data.message}</p>
+            ${data.photo ? `<img src="${data.photo}">` : ""}
         `;
+        postsDiv.appendChild(postDiv);
+
+        // Animación fade-in
+        setTimeout(() => postDiv.classList.add("visible"), 50);
     });
 }
 
-// Carga los posts al iniciar
+// Cargar posts al iniciar
 loadPosts();
 </script>
 </body>
 </html>
+
+
 
 
 
