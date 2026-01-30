@@ -11,7 +11,7 @@
 <style>
 body {
     font-family: 'Montserrat', sans-serif;
-    background: #ffffff; /* fondo blanco corregido */
+    background: #ffffff; /* fondo blanco */
     padding: 20px;
 }
 
@@ -66,12 +66,17 @@ form button:hover {
 }
 
 .post {
-    background: #fff;
+    background: #fff; /* se reemplazará dinámicamente */
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     word-wrap: break-word;
     font-family: 'Montserrat', sans-serif;
+    transition: transform 0.2s;
+}
+
+.post:hover {
+    transform: translateY(-5px);
 }
 
 .post img {
@@ -104,7 +109,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCImZjAnJTabmS3cbQWnxci6Wlmir9Tlvs",
   authDomain: "mural-de-mensajes.firebaseapp.com",
   projectId: "mural-de-mensajes",
-  storageBucket: "mural-de-mensajes.appspot.com", // corregido: antes era firebasestorage.app
+  storageBucket: "mural-de-mensajes.appspot.com",
   messagingSenderId: "41328202304",
   appId: "1:41328202304:web:6182555c612914e4d1c5a5",
   measurementId: "G-QGH48V0L8Y"
@@ -116,6 +121,9 @@ const storage = firebase.storage();
 
 const form = document.getElementById("form");
 const postsDiv = document.getElementById("posts");
+
+// Array de colores tipo post-it
+const postColors = ["#FFF9C4","#FFECB3","#FFE0B2","#FFCCBC","#D1C4E9","#B3E5FC","#C8E6C9","#FFCDD2"];
 
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -129,7 +137,47 @@ form.addEventListener("submit", async (e) => {
         if (photoFile) {
             const storageRef = storage.ref("posts/" + Date.now() + "_" + photoFile.name);
             await storageRef.put(photoFile);
+            photoURL = await storageRef.getDownloadURL();
+        }
 
+        await db.collection("posts").add({
+            name: name,
+            message: message,
+            photo: photoURL,
+            date: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        form.reset();
+        loadPosts();
+    } catch (err) {
+        console.error("Error al guardar el post:", err);
+        alert("No se pudo guardar el comentario. Revisa la consola.");
+    }
+});
+
+async function loadPosts() {
+    postsDiv.innerHTML = "";
+    const snapshot = await db.collection("posts").orderBy("date", "desc").get();
+    snapshot.forEach((doc) => {
+        const data = doc.data();
+        // Elegir un color aleatorio para cada post
+        const color = postColors[Math.floor(Math.random() * postColors.length)];
+
+        postsDiv.innerHTML += `
+            <div class="post" style="background-color: ${color}">
+                <strong>${data.name}</strong>
+                <p>${data.message}</p>
+                ${data.photo ? `<img src="${data.photo}">` : ""}
+            </div>
+        `;
+    });
+}
+
+// Carga los posts al iniciar
+loadPosts();
+</script>
+</body>
+</html>
 
 
 
