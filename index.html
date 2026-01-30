@@ -89,7 +89,7 @@ form button:hover {
 </style>
 </head>
 <body>
-<h1>Mural de Comentarios</h1>
+<h1> Mural de Mensajes para Chino</h1>
 
 <form id="form">
     <input type="text" id="name" placeholder="Tu nombre" required>
@@ -103,16 +103,14 @@ form button:hover {
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <script>
 // 🔹 CONFIGURACIÓN FIREBASE 🔹
-// Reemplaza estos valores con los de tu proyecto web en Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCImZjAnJTabmS3cbQWnxci6Wlmir9Tlvs",
   authDomain: "mural-de-mensajes.firebaseapp.com",
   projectId: "mural-de-mensajes",
-  storageBucket: "mural-de-mensajes.firebasestorage.com",
+  storageBucket: "mural-de-mensajes.firebasestorage.app",
   messagingSenderId: "41328202304",
   appId: "1:41328202304:web:6182555c612914e4d1c5a5",
   measurementId: "G-QGH48V0L8Y"
@@ -120,13 +118,30 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.firestore();
-const storage = firebase.storage();
-
 const form = document.getElementById("form");
 const postsDiv = document.getElementById("posts");
-
-// Colores de post-it
 const postColors = ["#FFF9C4","#FFECB3","#FFE0B2","#FFCCBC","#D1C4E9","#B3E5FC","#C8E6C9","#FFCDD2"];
+
+// Función para subir imagen a Imgbb
+async function uploadToImgbb(file) {
+    const reader = new FileReader();
+    const base64 = await new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result.split(",")[1]);
+        reader.onerror = error => reject(error);
+        reader.readAsDataURL(file);
+    });
+
+    const formData = new FormData();
+    formData.append("image", base64);
+    formData.append("key", "b9e69e7a623c596ab2152c4229fac31e"); // reemplaza con tu API Key
+
+    const res = await fetch("https://api.imgbb.com/1/upload", {
+        method: "POST",
+        body: formData
+    });
+    const data = await res.json();
+    return data.data.url;
+}
 
 // Subir comentario
 form.addEventListener("submit", async (e) => {
@@ -141,9 +156,7 @@ form.addEventListener("submit", async (e) => {
 
     try {
         if (photoFile) {
-            const storageRef = storage.ref("posts/" + Date.now() + "_" + photoFile.name);
-            await storageRef.put(photoFile);
-            photoURL = await storageRef.getDownloadURL();
+            photoURL = await uploadToImgbb(photoFile);
         }
 
         await db.collection("posts").add({
@@ -187,6 +200,8 @@ db.collection("posts")
 </script>
 </body>
 </html>
+
+
 
 
 
