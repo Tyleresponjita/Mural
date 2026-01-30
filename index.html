@@ -1,102 +1,13 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Mural de Comentarios</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      padding: 20px;
-    }
-    .post {
-      background: white;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-    }
-    img {
-      max-width: 100%;
-      border-radius: 6px;
-    }
-  </style>
-</head>
-<body>
-
-<h1> Mural de Mensajes</h1>
-
-<form id="form">
-  <input type="text" id="name" placeholder="Tu nombre" required><br><br>
-  <textarea id="message" placeholder="Escribe tu mensaje" required></textarea><br><br>
-  <input type="file" id="photo"><br><br>
-  <button type="submit">Publicar</button>
-</form>
-
 <div id="posts"></div>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
 <script>
-  const firebaseConfig = {
-  apiKey: "AIzaSyCImZjAnJTabmS3cbQWnxci6Wlmir9Tlvs",
-  authDomain: "mural-de-mensajes.firebaseapp.com",
-  projectId: "mural-de-mensajes",
-  storageBucket: "mural-de-mensajes.firebasestorage.app",
-  messagingSenderId: "41328202304",
-  appId: "1:41328202304:web:6182555c612914e4d1c5a5",
-  measurementId: "G-QGH48V0L8Y"
-};
-
-  firebase.initializeApp(firebaseConfig);
-
-  const db = firebase.firestore();
-  const storage = firebase.storage();
-  const form = document.getElementById("form");
-const postsDiv = document.getElementById("posts");
-
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const name = document.getElementById("name").value;
-  const message = document.getElementById("message").value;
-
-  await db.collection("posts").add({
-    name: name,
-    message: message,
-    date: Date.now()
-  });
-
-  form.reset();
-  loadPosts();
-});
-
-async function loadPosts() {
-  postsDiv.innerHTML = "";
-
-  const snapshot = await db
-    .collection("posts")
-    .orderBy("date", "desc")
-    .get();
-
-  snapshot.forEach(doc => {
-    const data = doc.data();
-    postsDiv.innerHTML += `
-      <div class="post">
-        <strong>${data.name}</strong>
-        <p>${data.message}</p>
-      </div>
-    `;
-  });
-}
-
-loadPosts();
-
+  document.body.style.background = "pink";
 </script>
 
 </body>
 </html>
+
+
 
 
 
